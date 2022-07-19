@@ -4,7 +4,7 @@ import { ObjectId } from "mongodb";
 export default class user {
     constructor(
         public email: string,
-        public password: number,
+        public password: string,
         public cart?: string,
         public id?: ObjectId) {}
 }

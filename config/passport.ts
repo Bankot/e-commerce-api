@@ -1,6 +1,5 @@
 import LocalStrategy from "passport-local"
 import passport from "passport"
-import db from "../db/dbConnect"
 import bcrypt from 'bcrypt'
 import { NextFunction } from "express";
 
