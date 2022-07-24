@@ -7,7 +7,9 @@ import passport from "passport"
 import validatorHandler from "../middleware/validatorHandler"
 
 const router = express.Router()
-
+router.route("/").get(authenticationMiddleware, (req, res, next) => {
+	res.send("hello there!")
+})
 router
 	.route("/admin/addProduct")
 	.post(
@@ -49,29 +51,28 @@ router.route("/register").post(
 	validatorHandler,
 	userController.postSignup
 )
-router
-	.route("/login")
-	.post(
-		[
-			body("email")
-				.trim()
-				.normalizeEmail()
-				.toLowerCase()
-				.isEmail()
-				.withMessage("Please provide valid email"),
-			body("password")
-				.trim()
-				.isLength({ min: 5 })
-				.withMessage("Password must be at least 5 characters long!"),
-		],
-		validatorHandler,
-		userController.postLogin,
-		passport.authenticate("local", {
-			failureRedirect: "/login",
-			failureMessage: true,
-		}),
-		(req: any, res: any, next: any) => {
-			console.log(req.user)
-		}
-	)
+router.route("/login").post(
+	[
+		body("email")
+			.trim()
+			.normalizeEmail()
+			.toLowerCase()
+			.isEmail()
+			.withMessage("Please provide valid email"),
+		body("password")
+			.trim()
+			.isLength({ min: 5 })
+			.withMessage("Password must be at least 5 characters long!"),
+	],
+	validatorHandler,
+	userController.postLogin,
+	passport.authenticate("local", {
+		failureRedirect: "/login",
+		failureMessage: true,
+	}),
+	(req: any, res: any, next: any) => {
+		res.json(req.user)
+	}
+)
+
 export default router

@@ -1,16 +1,16 @@
 import express from "express"
-import passport from "passport"
+import passport from "./config/passport"
 import session from "express-session"
 import router from "./router/router"
 import * as dotenv from "dotenv"
 import { connectToDatabase } from "./db/db"
-import * as passportConfig from "./config/passport"
 dotenv.config({ path: ".env" })
 
 const app = express()
 const secret = process.env.SESSION_SECRET as string | string[]
 
 app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
 
 app.use(
 	session({
