@@ -20,22 +20,10 @@ export const postSignup = async (
 			const exists = await collections.users?.findOne({ email: req.body.email })
 			if (exists)
 				return res.status(400).send("Account for this email already exists!")
-			collections.users?.insertOne(user)
+
+			await collections.users?.insertOne(user)
 			// after succesfull registering user, log him in
-
-			passport.authenticate("local", {
-				failureRedirect: "/login",
-				failureMessage: true,
-			}),
-				(req: Request, res: Response) => {
-					req.logIn(user, (err) => {
-						if (err) return res.status(400).send("Couldn't login user!")
-
-						return res.redirect("/")
-					})
-				}
-
-			return res.send("succesfully added an user!")
+			return res.redirect("/api/login")
 		} catch (err) {
 			return res.status(400).send("Something went wrong!")
 		}
@@ -49,12 +37,18 @@ export const postLogin = async (
 	res: Response,
 	next: NextFunction
 ) => {
-	try {
-		const user = await collections.users?.findOne({ email: req.body.email })
-		if (user && (await bcrypt.compare(req.body.password, user.password))) {
-			return next()
-		} else return res.send("Invalid credentials.")
-	} catch (err) {
-		return res.status(400).send("Something went wrong!")
-	}
+	passport.authenticate("local", function (err, user, info) {
+		if (err) {
+			return next(err)
+		}
+		if (!user) {
+			return res.send("Not valid info!")
+		}
+		req.logIn(user, function (err) {
+			if (err) {
+				return next(err)
+			}
+			return res.send(user)
+		})
+	})(req, res, next)
 }

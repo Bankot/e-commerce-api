@@ -4,6 +4,7 @@ import session from "express-session"
 import router from "./router/router"
 import * as dotenv from "dotenv"
 import { connectToDatabase } from "./db/db"
+import MongoStore from "connect-mongo"
 dotenv.config({ path: ".env" })
 
 const app = express()
@@ -17,6 +18,10 @@ app.use(
 		secret: secret,
 		resave: false,
 		saveUninitialized: false,
+		store: MongoStore.create({
+			mongoUrl: process.env.MONGO_URI,
+			dbName: "ecommerce",
+		}),
 	})
 )
 app.use(passport.initialize())
