@@ -50,7 +50,7 @@ passport.deserializeUser(async (user: user, cb) => {
 		},
 		{ projection: { password: false } }
 	)
-	console.log(result)
+
 	if (result) cb(null, result)
 	else return cb(null, false)
 })

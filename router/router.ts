@@ -80,7 +80,6 @@ router.route("/changePassword").post(
 	[
 		body("newPassword")
 			.trim()
-			.exists()
 			.isLength({ min: 5 })
 			.withMessage("You have to inser password!"),
 		body("repeatNewPassword").custom((value, { req }) => {
@@ -88,9 +87,13 @@ router.route("/changePassword").post(
 			else throw new Error("Passwords aren't the same!")
 		}),
 	],
+	validatorHandler,
 	authenticationMiddleware,
 	userController.postChangePassword
 )
+router
+	.route("/user")
+	.delete(authenticationMiddleware, userController.deleteUser)
 router.route("/logout").get((req, res, next) => {
 	req.logout((err) => console.log(err))
 	res.redirect("/api/login")

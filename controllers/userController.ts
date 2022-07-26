@@ -76,10 +76,35 @@ export const postChangePassword = async (
 	// since user is already logged in i dont know if theres a need to fetch oldPassword, and check it
 	let { newPassword, repeatNewPassword } = req.body
 	if (newPassword === repeatNewPassword && req.user) {
-		console.log(req.user)
 		// hash new password
 		newPassword = await bcrypt.hash(newPassword, 10)
+
 		// change password in database
-		//collections.users?.updateOne({_id: new ObjectId(req.user._id)}, {$set: {password: newPassword}})
+		try {
+			await collections.users?.updateOne(
+				{ _id: new ObjectId(req.user._id) },
+				{ $set: { password: newPassword } }
+			)
+			return res.send("Succesfully edited password.")
+		} catch (err) {
+			return res.status(400).send("Some error occured!")
+		}
+	}
+}
+export const deleteUser = async (
+	req: Request,
+	res: Response,
+	next: NextFunction
+) => {
+	// since user is logged in, we are not gonna check anything,
+	// just get user by req.user._id, and delete record in database
+	// after implementing cart system, gonna change this controller a little bit
+	if (req.user?._id) {
+		try {
+			await collections.users?.deleteOne({ _id: req.user._id })
+			return res.redirect("/")
+		} catch (err) {
+			return res.status(400).send("Some error occured!")
+		}
 	}
 }
