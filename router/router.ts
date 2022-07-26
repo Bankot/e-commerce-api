@@ -1,53 +1,34 @@
 import express, { NextFunction, Response, Request } from "express"
-import { body, validationResult } from "express-validator"
-import { addProduct } from "../controllers/administratorController"
+import { body } from "express-validator"
 import * as userController from "../controllers/userController"
 import authenticationMiddleware from "../middleware/authMiddleware"
-import passport from "passport"
 import validatorHandler from "../middleware/validatorHandler"
 
 const router = express.Router()
-router
-	.route("/admin/addProduct")
-	.post(
-		[
-			body("name")
-				.exists({ checkNull: true, checkFalsy: true })
-				.withMessage("Please provide a product name!"),
-			body("price")
-				.exists({ checkNull: true, checkFalsy: true })
-				.withMessage("Please provide a product price!"),
-			body("origin")
-				.exists({ checkNull: true, checkFalsy: true })
-				.withMessage("Please provide a product origin!"),
-			body("quantity")
-				.exists({ checkNull: true, checkFalsy: true })
-				.withMessage("Please provide a product quantity!"),
-		],
-		validatorHandler,
-		addProduct
-	)
+
+// this router looks messy, its first time im using express-validator and im satisfied with utilities
+// its providing, but code looks a bit ugly :(
 
 router
 	.route("/register")
 	.post(
 		[
 			body("email")
-				.trim()
+				.trim() // remove empty spaces
 				.normalizeEmail()
 				.toLowerCase()
 				.isEmail()
-				.withMessage("Please provide valid email"),
+				.withMessage("Please provide valid email"), // error message
 			body("password")
-				.trim()
+				.trim() // remove empty spaces
 				.isLength({ min: 5 })
-				.withMessage("Password must be at least 5 characters long!"),
+				.withMessage("Password must be at least 5 characters long!"), // error message
 			body("rpassword").custom((value, { req }) => {
 				if (value === req.body?.password) return true
 				else throw new Error("Passwords aren't the same!")
 			}),
 		],
-		validatorHandler,
+		validatorHandler, // this middleware is just passing error messages into next function
 		userController.postSignup
 	)
 	.get((req: Request, res: Response, next: NextFunction) => {
@@ -65,17 +46,17 @@ router
 	.post(
 		[
 			body("email")
-				.trim()
+				.trim() // remove empty spaces
 				.normalizeEmail()
 				.toLowerCase()
 				.isEmail()
-				.withMessage("Please provide valid email"),
+				.withMessage("Please provide valid email"), // error message
 			body("password")
 				.trim()
 				.isLength({ min: 5 })
-				.withMessage("Password must be at least 5 characters long!"),
+				.withMessage("Password must be at least 5 characters long!"), // error message
 		],
-		validatorHandler,
+		validatorHandler, // passing error messages into next fn
 		userController.postLogin
 	)
 	.get((req: Request, res: Response, next: NextFunction) => {
@@ -95,6 +76,21 @@ router
 router.route("/userInfo").get((req, res, next) => {
 	res.json(req.user)
 })
+router.route("/changePassword").post(
+	[
+		body("newPassword")
+			.trim()
+			.exists()
+			.isLength({ min: 5 })
+			.withMessage("You have to inser password!"),
+		body("repeatNewPassword").custom((value, { req }) => {
+			if (value === req.body?.newPassword) return true
+			else throw new Error("Passwords aren't the same!")
+		}),
+	],
+	authenticationMiddleware,
+	userController.postChangePassword
+)
 router.route("/logout").get((req, res, next) => {
 	req.logout((err) => console.log(err))
 	res.redirect("/api/login")

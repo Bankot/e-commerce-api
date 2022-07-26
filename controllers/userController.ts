@@ -3,31 +3,42 @@ import { collections } from "../db/db"
 import bcrypt from "bcrypt"
 import user from "../models/user"
 import passport from "passport"
+import { ObjectId } from "mongodb"
 
 export const postSignup = async (
 	req: Request,
 	res: Response,
 	next: NextFunction
 ) => {
+	// hash password for safe storage
 	const hashedPassword = await bcrypt.hash(req.body.password, 10)
-	const user: user = {
-		email: req.body.email,
-		password: hashedPassword,
-	}
-	// check if user with given email exists, create it if doesnt
+
+	// check if user with given email exists, insert it if doesnt
+
 	if (user) {
 		try {
 			const exists = await collections.users?.findOne({ email: req.body.email })
 			if (exists)
 				return res.status(400).send("Account for this email already exists!")
 
+			// create user object that we want to insert into DB
+
+			const user: user = {
+				email: req.body.email,
+				password: hashedPassword,
+			}
 			await collections.users?.insertOne(user)
-			// after succesfull registering user, log him in
+
+			// after succesfull registering user, redirect to login page
+
 			return res.redirect("/api/login")
 		} catch (err) {
+			// if error return error status
 			return res.status(400).send("Something went wrong!")
 		}
-	} else
+	}
+	// if error return error status
+	else
 		return res
 			.status(400)
 			.send("Couln't add a new user, please try again later!")
@@ -37,18 +48,38 @@ export const postLogin = async (
 	res: Response,
 	next: NextFunction
 ) => {
+	// basically all we are doing here is running passport authenticate function,
+	// which runs Our localStrategy, and all the passport stuff
+
+	if (req.isAuthenticated()) return res.send("You are already logged in")
 	passport.authenticate("local", function (err, user, info) {
 		if (err) {
-			return next(err)
+			return res.status(400).send("Some error occured!")
 		}
 		if (!user) {
 			return res.send("Not valid info!")
 		}
 		req.logIn(user, function (err) {
 			if (err) {
-				return next(err)
+				return res.status(400).send("Some error occured!")
 			}
 			return res.send(user)
 		})
 	})(req, res, next)
+}
+export const postChangePassword = async (
+	req: Request,
+	res: Response,
+	next: NextFunction
+) => {
+	// there gonna be a form with 2 values, newPassword, and RepeatNewPassword
+	// since user is already logged in i dont know if theres a need to fetch oldPassword, and check it
+	let { newPassword, repeatNewPassword } = req.body
+	if (newPassword === repeatNewPassword && req.user) {
+		console.log(req.user)
+		// hash new password
+		newPassword = await bcrypt.hash(newPassword, 10)
+		// change password in database
+		//collections.users?.updateOne({_id: new ObjectId(req.user._id)}, {$set: {password: newPassword}})
+	}
 }

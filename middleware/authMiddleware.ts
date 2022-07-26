@@ -7,6 +7,6 @@ function authenticationMiddleware(
 ) {
 	if (req.isAuthenticated()) {
 		return next()
-	} else return res.send("You are not authenticated to acces this route!")
+	} else return res.redirect("/api/login")
 }
 export default authenticationMiddleware
