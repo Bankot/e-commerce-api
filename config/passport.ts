@@ -50,8 +50,7 @@ passport.deserializeUser(async (user: user, cb) => {
 		},
 		{ projection: { password: false } }
 	)
-
-	if (result) cb(null, result)
+	if (result) cb(null, { email: result.email, _id: result._id })
 	else return cb(null, false)
 })
 export default passport

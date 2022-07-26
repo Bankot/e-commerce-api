@@ -7,7 +7,7 @@ import * as dotenv from "dotenv"
 
 export const collections: {
 	users?: mongoDB.Collection
-	products?: mongoDB.Collection
+	product?: mongoDB.Collection
 } = {}
 
 // Initialize Connection
@@ -24,10 +24,10 @@ export async function connectToDatabase() {
 	const db: mongoDB.Db = client.db("ecommerce")
 
 	const usersCollection: mongoDB.Collection = db.collection("users")
-	const productsCollection: mongoDB.Collection = db.collection("products")
+	const productCollection: mongoDB.Collection = db.collection("product")
 
 	collections.users = usersCollection
-	collections.products = productsCollection
+	collections.product = productCollection
 
 	console.log(`Successfully connected to database: ${db.databaseName}`)
 	return client

@@ -26,6 +26,7 @@ export const postSignup = async (
 			const user: user = {
 				email: req.body.email,
 				password: hashedPassword,
+				cart: [],
 			}
 			await collections.users?.insertOne(user)
 
@@ -63,7 +64,7 @@ export const postLogin = async (
 			if (err) {
 				return res.status(400).send("Some error occured!")
 			}
-			return res.send(user)
+			return res.send(user.email)
 		})
 	})(req, res, next)
 }

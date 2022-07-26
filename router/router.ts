@@ -1,5 +1,6 @@
 import express, { NextFunction, Response, Request } from "express"
 import { body } from "express-validator"
+import * as cartControllers from "../controllers/cartControllers"
 import * as userController from "../controllers/userController"
 import authenticationMiddleware from "../middleware/authMiddleware"
 import validatorHandler from "../middleware/validatorHandler"
@@ -8,6 +9,34 @@ const router = express.Router()
 
 // this router looks messy, its first time im using express-validator and im satisfied with utilities
 // its providing, but code looks a bit ugly :(
+
+router.route("/addToCart").post(
+	[
+		body("productId") // just basic validation, i guess it could be much better and secure, gonna fix it someday!
+			.trim()
+			.exists()
+			.withMessage("Please insert Product ID!"),
+		body("quantity")
+			.isNumeric()
+			.exists()
+			.withMessage("Please add quantity of product!"),
+	],
+	validatorHandler,
+	cartControllers.addToCart
+)
+router
+	.route("/changeQuantity")
+	.post(
+		[
+			body("productId").exists().trim().withMessage("Please provide valid Id"),
+			body("quantity")
+				.exists()
+				.isNumeric()
+				.withMessage("Please provide valid quantity"),
+		],
+		validatorHandler,
+		cartControllers.changeQuantity
+	)
 
 router
 	.route("/register")
@@ -71,7 +100,10 @@ router
 router
 	.route("/protected-route")
 	.get(authenticationMiddleware, (req, res, next) => {
-		res.send("hello there!")
+		if (req.user) {
+			req.session.cart = req.user
+			res.json(req.session.cart)
+		}
 	})
 router.route("/userInfo").get((req, res, next) => {
 	res.json(req.user)
