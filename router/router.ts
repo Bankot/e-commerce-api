@@ -30,6 +30,14 @@ router
 		res.send(req.session.cart)
 	})
 router
+	.route("/updateCart")
+	.get(
+		cartControllers.updateCartPrices,
+		(req: Request, res: Response, next: NextFunction) => {
+			res.send(req.session.cart)
+		}
+	)
+router
 	.route("/deleteFromCart")
 	.post(
 		[body("productId").exists().isString().withMessage("Provide id.")],

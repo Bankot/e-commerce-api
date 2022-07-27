@@ -67,9 +67,25 @@ export const deleteFromCart = async (
 	next: NextFunction
 ) => {
 	if (req.session.cart) {
+		// create new cart, edit it and then pass to the session
 		const newCart = new Cart(req.session.cart)
 		newCart.deleteFromCart(req.body.productId)
 		req.session.cart = newCart
 	}
 	res.send("Succesfully deleted from cart!")
+}
+export const updateCartPrices = async (
+	req: Request,
+	res: Response,
+	next: NextFunction
+) => {
+	{
+		if (req.session.cart) {
+			// create new cart, edit it and then pass to the session
+			const newCart = new Cart(req.session.cart)
+			await newCart.syncWithDb()
+			req.session.cart = newCart
+		}
+		next()
+	}
 }
