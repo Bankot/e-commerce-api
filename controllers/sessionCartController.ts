@@ -24,7 +24,6 @@ export const addToCart = async (
 	if (!foundProduct) return res.status(400).send("Couldn't complete this call")
 
 	// check if theres already a cart for this session
-
 	if (req.session.cart) {
 		const newCart = new Cart(req.session.cart)
 		const newProduct = foundProduct

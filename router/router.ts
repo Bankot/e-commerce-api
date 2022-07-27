@@ -1,6 +1,7 @@
 import express, { NextFunction, Response, Request } from "express"
 import { body } from "express-validator"
-import * as cartControllers from "../controllers/cartControllers"
+import * as sessionCartController from "../controllers/sessionCartController"
+import * as dbCartController from "../controllers/dbCartController"
 import * as userController from "../controllers/userController"
 import authenticationMiddleware from "../middleware/authMiddleware"
 import validatorHandler from "../middleware/validatorHandler"
@@ -9,6 +10,8 @@ const router = express.Router()
 
 // this router looks messy, its first time im using express-validator and im satisfied with utilities
 // its providing, but code looks a bit ugly :(
+
+// ======================= CART ROUTES ============================
 
 router.route("/addToCart").post(
 	[
@@ -22,7 +25,8 @@ router.route("/addToCart").post(
 			.withMessage("Please add quantity of product!"),
 	],
 	validatorHandler,
-	cartControllers.addToCart
+	dbCartController.addToCart,
+	sessionCartController.addToCart
 )
 router
 	.route("/showCart")
@@ -32,17 +36,16 @@ router
 router
 	.route("/updateCart")
 	.get(
-		cartControllers.updateCartPrices,
-		(req: Request, res: Response, next: NextFunction) => {
-			res.send(req.session.cart)
-		}
+		dbCartController.updateCartPrices,
+		sessionCartController.updateCartPrices
 	)
 router
 	.route("/deleteFromCart")
 	.post(
 		[body("productId").exists().isString().withMessage("Provide id.")],
 		validatorHandler,
-		cartControllers.deleteFromCart
+		dbCartController.deleteFromCart,
+		sessionCartController.deleteFromCart
 	)
 router.route("/changeQuantity").post(
 	[
@@ -53,9 +56,11 @@ router.route("/changeQuantity").post(
 			.withMessage("Please provide valid quantity"),
 	],
 	validatorHandler,
-	cartControllers.changeQuantity
+	dbCartController.changeQuantity,
+	sessionCartController.changeQuantity
 )
 
+// ========================= USER ROUTES ================================
 router
 	.route("/register")
 	.post(
@@ -115,17 +120,6 @@ router
 
 		res.send(form)
 	})
-router
-	.route("/protected-route")
-	.get(authenticationMiddleware, (req, res, next) => {
-		if (req.user) {
-			req.session.cart = req.user
-			res.json(req.session.cart)
-		}
-	})
-router.route("/userInfo").get((req, res, next) => {
-	res.json(req.user)
-})
 router.route("/changePassword").post(
 	[
 		body("newPassword")
@@ -147,5 +141,19 @@ router
 router.route("/logout").get((req, res, next) => {
 	req.logout((err) => console.log(err))
 	res.redirect("/api/login")
+})
+
+// ============================= UTILITY ROUTES ================================
+
+router
+	.route("/protected-route")
+	.get(authenticationMiddleware, (req, res, next) => {
+		if (req.user) {
+			req.session.cart = req.user
+			res.json(req.session.cart)
+		}
+	})
+router.route("/userInfo").get((req, res, next) => {
+	res.json(req.user)
 })
 export default router

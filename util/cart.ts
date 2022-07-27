@@ -21,7 +21,6 @@ export default class Cart {
 		// check if there's a record for this item
 		this.items.forEach((n, i) => {
 			if (product.name === n.product.name) {
-				console.log(this.items[i])
 				this.items[i].quantity += quantity
 				finished = true
 			}
@@ -33,9 +32,9 @@ export default class Cart {
 		}
 		this.recalculateTotals()
 	}
-	public changeQuantity = (productId: ObjectId, newQuantity: number): void => {
+	public changeQuantity = (productId: string, newQuantity: number): void => {
 		this.items.forEach((n, i) => {
-			if (productId === n.product._id) {
+			if (productId === n.product._id?.toString()) {
 				this.items[i].quantity = newQuantity
 			}
 			this.recalculateTotals()
