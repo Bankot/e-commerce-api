@@ -61,3 +61,15 @@ export const changeQuantity = async (
 		res.send(req.session.cart)
 	}
 }
+export const deleteFromCart = async (
+	req: Request,
+	res: Response,
+	next: NextFunction
+) => {
+	if (req.session.cart) {
+		const newCart = new Cart(req.session.cart)
+		newCart.deleteFromCart(req.body.productId)
+		req.session.cart = newCart
+	}
+	res.send("Succesfully deleted from cart!")
+}

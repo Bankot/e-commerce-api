@@ -40,6 +40,13 @@ export default class Cart {
 			this.recalculateTotals()
 		})
 	}
+	public deleteFromCart = (productId: ObjectId): void => {
+		let newItemsArray = this.items.filter((n) => {
+			return n.product._id != productId
+		})
+		this.items = newItemsArray
+		this.recalculateTotals()
+	}
 	// this function is updating total values of the whole cart, im gonna invoke it at the end of each function here
 	public recalculateTotals = () => {
 		let newPrice = 0

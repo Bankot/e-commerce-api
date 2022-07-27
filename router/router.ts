@@ -25,18 +25,28 @@ router.route("/addToCart").post(
 	cartControllers.addToCart
 )
 router
-	.route("/changeQuantity")
+	.route("/showCart")
+	.get((req: Request, res: Response, next: NextFunction) => {
+		res.send(req.session.cart)
+	})
+router
+	.route("/deleteFromCart")
 	.post(
-		[
-			body("productId").exists().trim().withMessage("Please provide valid Id"),
-			body("quantity")
-				.exists()
-				.isNumeric()
-				.withMessage("Please provide valid quantity"),
-		],
+		[body("productId").exists().isString().withMessage("Provide id.")],
 		validatorHandler,
-		cartControllers.changeQuantity
+		cartControllers.deleteFromCart
 	)
+router.route("/changeQuantity").post(
+	[
+		body("productId").exists().trim().withMessage("Please provide valid Id"),
+		body("quantity")
+			.toInt() // for some reason isInt isnt enough to ensure that string cant be passed, maybe im gonna work on it later
+			.isInt({ min: 1, max: 150 })
+			.withMessage("Please provide valid quantity"),
+	],
+	validatorHandler,
+	cartControllers.changeQuantity
+)
 
 router
 	.route("/register")
