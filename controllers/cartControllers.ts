@@ -1,6 +1,5 @@
 import { NextFunction, Request, Response } from "express"
 import Cart from "../util/cart"
-import product from "../models/product"
 import { ObjectId } from "mongodb"
 import { collections } from "../db/db"
 
