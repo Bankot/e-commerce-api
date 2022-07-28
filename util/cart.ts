@@ -17,14 +17,16 @@ export default class Cart {
 
 	public add = (product: product, quantity: number): void => {
 		let finished = false
-
+		//initialize if empty
+		if (this.items) {
+			this.items.forEach((n, i) => {
+				if (product.name === n.product.name) {
+					this.items[i].quantity += quantity
+					finished = true
+				}
+			})
+		}
 		// check if there's a record for this item
-		this.items.forEach((n, i) => {
-			if (product.name === n.product.name) {
-				this.items[i].quantity += quantity
-				finished = true
-			}
-		})
 
 		// if there's not this item yet, add it
 		if (!finished) {

@@ -13,6 +13,11 @@ export const postSignup = async (
 	// hash password for safe storage
 	const hashedPassword = await bcrypt.hash(req.body.password, 10)
 
+	// if cart exists in this session, we want to insert it to the brand new user in DB,
+	// this behavior will be forced in placing order logic
+
+	let newCart = req.session.cart ? req.session.cart : null
+
 	// check if user with given email exists, insert it if doesnt
 
 	if (user) {
@@ -26,7 +31,7 @@ export const postSignup = async (
 			const user: user = {
 				email: req.body.email,
 				password: hashedPassword,
-				cart: [],
+				cart: newCart,
 			}
 			await collections.users?.insertOne(user)
 

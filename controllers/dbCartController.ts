@@ -3,6 +3,8 @@ import Cart from "../util/cart"
 import { ObjectId } from "mongodb"
 import { collections } from "../db/db"
 
+// i feel like it could be built much better and smarter, gonna definitely try to improve it!
+
 export const addToCart = async (
 	req: Request,
 	res: Response,
