@@ -1,3 +1,8 @@
+This is my first ts repo, and its really bad, but I like cart logic here, so im not gonna remove :_)
+
+
+
+
 REMEMBER TO CHANGE CART SYSTEM IN FOLLOWING WAY:
 
 - user is logged in -> create cart -> send cart and its changes to db
